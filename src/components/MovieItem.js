@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window'); // Pega a largura da tela
 
 const MovieItem = ({ movie, onPress }) => {
   return (
@@ -8,35 +10,34 @@ const MovieItem = ({ movie, onPress }) => {
         style={styles.image}
         source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
       />
-      <View style={styles.details}>
-        <Text style={styles.title}>{movie.title}</Text>
-        <Text style={styles.date}>{movie.release_date}</Text>
-      </View>
+      <Text style={styles.title}>{movie.title}</Text>
+      <Text style={styles.date}>{movie.release_date}</Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
+    flex: 1,
+    margin: 10, // Espaçamento entre os filmes
+    alignItems: 'center',
   },
   image: {
-    width: 50,
-    height: 75,
-    marginRight: 10,
-  },
-  details: {
-    flex: 1,
+    width: width / 2.3, // Ajusta a largura para caber dois filmes por linha
+    height: 280, // Aumenta a altura proporcionalmente
+    borderRadius: 10,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+    marginTop: 5,
   },
   date: {
-    color: 'gray',
+    fontSize: 12,
+    color: '#FFD700',
+    textAlign: 'center',
   },
 });
 

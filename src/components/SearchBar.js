@@ -7,10 +7,11 @@ const SearchBar = ({ query, setQuery, onSearch }) => {
       <TextInput
         style={styles.input}
         placeholder="Digite o nome do filme..."
+        placeholderTextColor="#aaa" // Cor do placeholder
         value={query}
         onChangeText={setQuery}
       />
-      <Button title="Buscar" onPress={onSearch} />
+      <Button title="Buscar" onPress={onSearch} color="#FFD700" /> 
     </View>
   );
 };
@@ -24,10 +25,12 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#FFD700',
+    backgroundColor: '#333',
     padding: 10,
     borderRadius: 5,
     marginRight: 10,
+    color: 'white', // Agora o texto digitado será branco
   },
 });
 

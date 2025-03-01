@@ -1,49 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
-import SearchBar from '../components/SearchBar';
+import { Ionicons } from '@expo/vector-icons';
 import MovieItem from '../components/MovieItem';
-import { fetchMovies } from '../services/api';
+import { fetchMoviesByCategory } from '../services/api';
 
-const HomeScreen = ({ navigation }) => {
-  const [query, setQuery] = useState('');
+const CategoryMoviesScreen = ({ route, navigation }) => {
+  const { categoryId, categoryName } = route.params;
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [darkTheme, setDarkTheme] = useState(true); // Estado para alternar entre temas
+  const [darkTheme, setDarkTheme] = useState(true);
 
   useEffect(() => {
     const loadMovies = async () => {
-      setLoading(true);
-      const results = await fetchMovies('A'); // Apenas um exemplo para carregar filmes iniciais
-      setMovies(results);
+      if (!categoryId) {
+        console.error("Erro: categoryId está indefinido.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const results = await fetchMoviesByCategory(categoryId);
+        setMovies(results);
+      } catch (error) {
+        console.error("Erro ao carregar filmes da categoria:", error);
+      }
+
       setLoading(false);
     };
 
     loadMovies();
-  }, []);
-
-  const handleSearch = async () => {
-    if (query.trim() === '') return;
-    setLoading(true);
-    const results = await fetchMovies(query);
-    setMovies(results);
-    setLoading(false);
-  };
-
-  // Função para alternar entre os temas
-  const toggleTheme = () => {
-    setDarkTheme(!darkTheme);
-  };
+  }, [categoryId]);
 
   return (
     <View style={[styles.container, darkTheme ? styles.darkContainer : styles.lightContainer]}>
-      <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate('Categories')}>
-        <Text style={[styles.categoryButtonText, darkTheme ? styles.darkText : styles.lightText]}>Categorias</Text>
-      </TouchableOpacity>
-
-      <SearchBar query={query} setQuery={setQuery} onSearch={handleSearch} />
+      <Text style={[styles.title, darkTheme ? styles.darkText : styles.lightText]}>{categoryName}</Text>
 
       {/* Botão para alternar o tema */}
-      <TouchableOpacity style={styles.themeButton} onPress={toggleTheme}>
+      <TouchableOpacity style={styles.themeButton} onPress={() => setDarkTheme(!darkTheme)}>
         <Text style={[styles.themeButtonText, darkTheme ? styles.darkText : styles.lightText]}>
           {darkTheme ? 'Modo Claro' : 'Modo Escuro'}
         </Text>
@@ -58,12 +51,20 @@ const HomeScreen = ({ navigation }) => {
           data={movies}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <MovieItem movie={item} onPress={() => navigation.navigate('MovieDetail', { movieId: item.id })} />
+            <MovieItem 
+              movie={item} 
+              onPress={() => navigation.navigate('MovieDetail', { movieId: item.id })} 
+            />
           )}
           numColumns={2}
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
         />
       )}
+
+      {/* Botão de Início */}
+      <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
+        <Ionicons name="home" size={24} color="white" />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -79,27 +80,12 @@ const styles = StyleSheet.create({
   lightContainer: {
     backgroundColor: '#FFFFFF',
   },
-  categoryButton: {
-    backgroundColor: '#FFD700',
-    padding: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  categoryButtonText: {
-    fontSize: 18,
+  title: {
+    fontSize: 22,
     fontWeight: 'bold',
-  },
-  themeButton: {
-    backgroundColor: '#FFD700',
-    padding: 10,
-    borderRadius: 10,
-    alignItems: 'center',
+    textAlign: 'center',
     marginBottom: 10,
-  },
-  themeButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    marginTop: 20,
   },
   darkText: {
     color: 'white',
@@ -107,11 +93,31 @@ const styles = StyleSheet.create({
   lightText: {
     color: '#121212',
   },
+  themeButton: {
+    backgroundColor: '#FFD700',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 10,
+    marginTop: 10,
+  },
+  themeButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   message: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
   },
+  homeButton: {
+    position: 'absolute',
+    bottom: 20,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: 12,
+    borderRadius: 30,
+  },
 });
 
-export default HomeScreen;
+export default CategoryMoviesScreen;
